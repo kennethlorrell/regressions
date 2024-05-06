@@ -60,6 +60,15 @@ class LinearRegression {
 
     return features;
   }
+
+  standardize(features) {
+    const { mean, variance } = tf.moments(features, 0);
+
+    this.mean = mean;
+    this.variance = variance;
+
+    return features.sub(mean).div(variance.pow(0.5));
+  }
 }
 
 module.exports = LinearRegression;
