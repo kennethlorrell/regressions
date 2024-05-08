@@ -1,6 +1,7 @@
 require('@tensorflow/tfjs-node');
 const loadCSV = require('../utils/load-csv');
 const LogisticRegression = require('./LogisticRegression');
+const plot = require('node-remote-plot');
 
 const { features, labels, testFeatures, testLabels } = loadCSV('./data/cars.csv', {
   shuffle: true,
