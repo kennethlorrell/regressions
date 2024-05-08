@@ -11,7 +11,8 @@ class LogisticRegression {
     this.options = Object.assign({
       learningRate: 0.1,
       iterations: 1000,
-      batchSize: 10
+      batchSize: 10,
+      decisionBoundary: 0.5
     }, options);
   }
 
@@ -55,28 +56,22 @@ class LogisticRegression {
   predict(observations) {
     return this.processFeatures(observations)
       .matMul(this.weights)
-      .sigmoid();
+      .sigmoid()
+      .greater(this.options.decisionBoundary)
+      .cast('float32');
   }
 
   test(testFeatures, testLabels) {
-    testFeatures = this.processFeatures(testFeatures);
+    const predictions = this.predict(testFeatures);
     testLabels = tf.tensor(testLabels);
 
-    const predictions = testFeatures.matMul(this.weights);
-
-    const residuals = testLabels
-      .sub(predictions)
-      .pow(2)
+    const incorrect = predictions
+      .sub(testLabels)
+      .abs()
       .sum()
       .get();
 
-    const total = testLabels
-      .sub(testLabels.mean())
-      .pow(2)
-      .sum()
-      .get();
-
-    return 1 - residuals / total;
+    return (predictions.shape[0] - incorrect) / predictions.shape[0];
   }
 
   processFeatures(features) {
