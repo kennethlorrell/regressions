@@ -11,8 +11,7 @@ class MultinomialLogisticRegression {
     this.options = Object.assign({
       learningRate: 0.1,
       iterations: 1000,
-      batchSize: 10,
-      decisionBoundary: 0.5
+      batchSize: 10
     }, options);
   }
 
@@ -57,17 +56,15 @@ class MultinomialLogisticRegression {
     return this.processFeatures(observations)
       .matMul(this.weights)
       .softmax()
-      .greater(this.options.decisionBoundary)
-      .cast('float32');
+      .argMax(1);
   }
 
   test(testFeatures, testLabels) {
     const predictions = this.predict(testFeatures);
-    testLabels = tf.tensor(testLabels);
+    testLabels = tf.tensor(testLabels).argMax(1);
 
     const incorrect = predictions
-      .sub(testLabels)
-      .abs()
+      .notEqual(testLabels)
       .sum()
       .get();
 
