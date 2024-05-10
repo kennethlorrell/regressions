@@ -4,7 +4,7 @@ const plot = require('node-remote-plot');
 const _ = require('lodash');
 const mnist = require('mnist-data');
 
-const TRAINING_SIZE = 1000;
+const TRAINING_SIZE = 5000;
 const TEST_SIZE = TRAINING_SIZE / 10;
 
 const mnistData = mnist.training(0, TRAINING_SIZE);
@@ -19,7 +19,7 @@ const encodedLabels = mnistData.labels.values.map((label) => {
 
 const regression = new MultinomialLogisticRegression(features, encodedLabels, {
   learningRate: 1,
-  iterations: 5,
+  iterations: 20,
   batchSize: 100
 });
 
