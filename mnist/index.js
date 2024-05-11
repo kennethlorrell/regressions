@@ -4,20 +4,26 @@ const plot = require('node-remote-plot');
 const _ = require('lodash');
 const mnist = require('mnist-data');
 
-const TRAINING_SIZE = 5000;
-const TEST_SIZE = TRAINING_SIZE / 10;
+const loadData = () => {
+  const mnistData = mnist.training(0, 60000);
 
-const mnistData = mnist.training(0, TRAINING_SIZE);
+  const features = mnistData.images.values.map((feature) => _.flatMap(feature));
+  const encodedLabels = mnistData.labels.values.map((label) => {
+    const row = Array.from({ length: 10 }).fill(0)
+    row[label] = 1;
 
-const features = mnistData.images.values.map((feature) => _.flatMap(feature));
-const encodedLabels = mnistData.labels.values.map((label) => {
-  const row = Array.from({ length: 10 }).fill(0)
-  row[label] = 1;
+    return row;
+  });
 
-  return row;
-});
+  return {
+    features,
+    labels: encodedLabels
+  }
+}
 
-const regression = new MultinomialLogisticRegression(features, encodedLabels, {
+const { features, labels } = loadData();
+
+const regression = new MultinomialLogisticRegression(features, labels, {
   learningRate: 1,
   iterations: 20,
   batchSize: 100
@@ -25,7 +31,7 @@ const regression = new MultinomialLogisticRegression(features, encodedLabels, {
 
 regression.train();
 
-const testMnistData = mnist.testing(0, TEST_SIZE);
+const testMnistData = mnist.testing(0, 10000);
 
 const testFeatures = testMnistData.images.values.map((feature) => _.flatMap(feature));
 const testEncodedLabels = testMnistData.labels.values.map((label) => {
