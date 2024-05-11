@@ -106,7 +106,11 @@ class MultinomialLogisticRegression {
 
       const termOne = this.labels
         .transpose()
-        .matMul(guesses.log());
+        .matMul(
+          guesses
+            .add(1e-7)
+            .log()
+        );
 
       const termTwo = this.labels
         .mul(-1)
@@ -116,6 +120,7 @@ class MultinomialLogisticRegression {
           guesses
           .mul(-1)
           .add(1)
+          .add(1e-7)
           .log()
         );
 

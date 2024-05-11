@@ -44,3 +44,7 @@ const testEncodedLabels = testMnistData.labels.values.map((label) => {
 const accuracy = regression.test(testFeatures, testEncodedLabels);
 
 console.log(`Accuracy is ${accuracy}`);
+
+plot({
+  x: regression.costHistory.reverse()
+});
