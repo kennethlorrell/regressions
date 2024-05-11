@@ -24,7 +24,7 @@ class MultinomialLogisticRegression {
       .matMul(differences)
       .div(features.shape[0]);
 
-    this.weights = this.weights.sub(
+    return this.weights.sub(
       slopes.mul(this.options.learningRate)
     );
   }
@@ -36,16 +36,18 @@ class MultinomialLogisticRegression {
       for (let j = 0; j < batchQuantity; j++) {
         const startIndex = j * this.options.batchSize;
 
-        const featureSlice = this.features.slice(
-          [startIndex, 0],
-          [this.options.batchSize, -1]
-        );
-        const labelSlice = this.labels.slice(
-          [startIndex, 0],
-          [this.options.batchSize, -1]
-        )
+        this.weights = tf.tidy(() => {
+          const featureSlice = this.features.slice(
+            [startIndex, 0],
+            [this.options.batchSize, -1]
+          );
+          const labelSlice = this.labels.slice(
+            [startIndex, 0],
+            [this.options.batchSize, -1]
+          )
 
-        this.gradientDescent(featureSlice, labelSlice);
+          return this.gradientDescent(featureSlice, labelSlice);
+        })
       }
       this.recordCost();
       this.updateLearningRate();
@@ -97,27 +99,31 @@ class MultinomialLogisticRegression {
   }
 
   recordCost() {
-    const guesses = this.features.matMul(this.weights).sigmoid();
+    const cost = tf.tidy(() => {
+      const guesses = this.features
+        .matMul(this.weights)
+        .sigmoid();
 
-    const termOne = this.labels
-      .transpose()
-      .matMul(guesses.log());
+      const termOne = this.labels
+        .transpose()
+        .matMul(guesses.log());
 
-    const termTwo = this.labels
-      .mul(-1)
-      .add(1)
-      .transpose()
-      .matMul(
-        guesses
+      const termTwo = this.labels
+        .mul(-1)
+        .add(1)
+        .transpose()
+        .matMul(
+          guesses
           .mul(-1)
           .add(1)
           .log()
-      );
+        );
 
-    const cost = termOne.add(termTwo)
-      .div(this.features.shape[0])
-      .mul(-1)
-      .get(0, 0);
+      return termOne.add(termTwo)
+        .div(this.features.shape[0])
+        .mul(-1)
+        .get(0, 0);
+    })
 
     this.costHistory.unshift(cost);
   }
