@@ -25,8 +25,8 @@ const { features, labels } = loadData();
 
 const regression = new MultinomialLogisticRegression(features, labels, {
   learningRate: 1,
-  iterations: 20,
-  batchSize: 100
+  iterations: 50,
+  batchSize: 500
 });
 
 regression.train();
